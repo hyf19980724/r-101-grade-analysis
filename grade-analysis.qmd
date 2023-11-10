@@ -5,7 +5,7 @@ format: html
 editor: visual
 ---
 
-```{r}
+```{r echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
@@ -39,9 +39,7 @@ knitr::kable(exam_stats, caption = "Descriptive statistics of the Exam grades")
 ### Question 3:
 
 ```{r}
-num_missing_exam <- grades %>%
-  summarise(Count = sum(is.na(Exam)))
-missing_count <- num_missing_exam$Count
+missing_count <- sum(is.na(grades$Exam))
 cat("The number of students who did not take the final exam is", missing_count, ".")
 ```
 
@@ -52,8 +50,7 @@ grades %>%
   filter(!is.na(Exam)) %>%
   ggplot(aes(x = Exam)) +
   geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) + 
-  labs(title = "Distribution of Exam Grades", x = "Grades", y = "Number of Students") +
-  theme_minimal()
+  labs(title = "Distribution of Exam Grades", x = "Grades", y = "Number of Students")
 ```
 
 ### Question 5:
@@ -76,12 +73,29 @@ ggplot(students_per_group, aes(x = Group, y = Count)) +
 
 ### Question 7:
 
+**First Representation (e.g., Boxplot)**:
+
 ```{r}
 grades %>%
   filter(!is.na(Exam)) %>%
   ggplot(aes(x = Group, y = Exam, fill = Group)) +
   geom_boxplot() +
   labs(title = "Distribution of Exam Grades by Group", x = "Group", y = "Exam Grade") +
+  theme_minimal() +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+**Second Representation (e.g., Violin Plot)**:
+
+```{r}
+grades %>%
+  filter(!is.na(Exam)) %>%
+  ggplot(aes(x = Group, y = Exam, fill = Group)) +
+  geom_violin() +
+  geom_jitter(width = 0.2) +  # Adding jitter for better visualization
+  theme_minimal() +
+  labs(title = "Violin Plot of Exam Grades by Group", x = "Group", y = "Exam Grade") +
   theme_minimal() +
   theme(legend.position = "none")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
@@ -115,7 +129,7 @@ ggplot(students_missed_exam, aes(x = Group, y = Missed_Exam)) +
 long_format <- grades %>%
   tidyr::pivot_longer(
     cols = -c(Id, Group), 
-    names_to = "name",  
+    names_to = "Test",  
     values_to = "Grade" )
 knitr::kable(long_format, caption = "Grades of Students in Each Question")
 ```
@@ -142,7 +156,7 @@ ggplot(missing_grades_per_student, aes(x = Missing_Grades)) +
 
 ```{r}
 students_missed_exam_long <- long_format %>%
-  filter(name == 'Exam' & is.na(Grade)) %>%  
+  filter(Test == 'Exam' & is.na(Grade)) %>%  
   group_by(Group) %>%
   summarise(Missed_Exam = n()) %>%
   complete(Group, fill = list(Missed_Exam = 0))
@@ -154,7 +168,7 @@ knitr::kable(students_missed_exam_long, caption = "Number of Students Who Missed
 ```{r}
 library(stringr)
 missing_online_grades <- long_format %>%
-  filter(str_starts(name, 'Online_MCQ')) %>%
+  filter(str_starts(Test, 'Online_MCQ')) %>%
   group_by(Id) %>%
   summarise(missing_online_grades = sum(is.na(Grade)))
 knitr::kable(missing_online_grades, caption = "Number of Missing Online Grades Per Student")
