@@ -49,7 +49,7 @@ cat("The number of students who did not take the final exam is", missing_count, 
 grades %>%
   filter(!is.na(Exam)) %>%
   ggplot(aes(x = Exam)) +
-  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) + 
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.7) + 
   labs(title = "Distribution of Exam Grades", x = "Grades", y = "Number of Students")
 ```
 
